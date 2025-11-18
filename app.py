@@ -35,8 +35,7 @@ sidebar = html.Div(
                 dbc.NavLink("K-Means Clustering", href="/clustering", active="exact"),
                 dbc.NavLink("DBSCAN Clustering", href="/dbscan", active="exact"),
                 dbc.NavLink("Correlation Analysis", href="/correlation", active="exact"),
-                dbc.NavLink("Genre & Features", href="/temporal", active="exact"),
-                dbc.NavLink("Genre Analysis", href="/genres", active="exact"),
+                dbc.NavLink("Genre Analysis", href="/genre", active="exact"),
                 dbc.NavLink("Top Charts", href="/top-charts", active="exact"),
             ],
             vertical=True,
@@ -82,9 +81,7 @@ def render_page_content(pathname):
         return create_dbscan_page()
     elif pathname == "/correlation":
         return create_correlation_page()
-    elif pathname == "/temporal":
-        return create_temporal_page()
-    elif pathname == "/genres":
+    elif pathname == "/genre":
         return create_genre_page()
     elif pathname == "/top-charts":
         return create_top_charts_page()
@@ -532,7 +529,7 @@ def create_correlation_page():
     ])
 
 
-def create_temporal_page():
+def create_genre_page():
     """Temporal analysis page showing trends over time"""
 
     # Note: This dataset doesn't have release_year, so we'll analyze by genre and audio features instead
@@ -615,78 +612,6 @@ def create_temporal_page():
     ])
 
 
-def create_genre_page():
-    """Genre analysis page"""
-
-    # Get genre distribution from tracks
-    if 'genre' in tracks_df.columns:
-        # Top genres overall
-        top_genres = tracks_df['genre'].value_counts().head(20).reset_index()
-        top_genres.columns = ['Genre', 'Count']
-
-        genre_fig = px.bar(
-            top_genres,
-            x='Genre',
-            y='Count',
-            title='Top 20 Genres in Dataset',
-            labels={'Genre': 'Genre', 'Count': 'Number of Tracks'},
-            color='Count',
-            color_continuous_scale='viridis'
-        )
-        genre_fig.update_xaxes(tickangle=-45)
-
-        # Top genres in popular tracks (top 10%)
-        threshold = tracks_df['popularity'].quantile(0.9)
-        popular_tracks = tracks_df[tracks_df['popularity'] >= threshold]
-        top_popular_genres = popular_tracks['genre'].value_counts().head(15).reset_index()
-        top_popular_genres.columns = ['Genre', 'Count']
-
-        popular_genre_fig = px.bar(
-            top_popular_genres,
-            x='Genre',
-            y='Count',
-            title='Top 15 Genres in Most Popular Tracks (Top 10%)',
-            labels={'Genre': 'Genre', 'Count': 'Frequency'},
-            color='Count',
-            color_continuous_scale='plasma'
-        )
-        popular_genre_fig.update_xaxes(tickangle=-45)
-
-        # Genre popularity distribution
-        genre_pop = tracks_df.groupby('genre')['popularity'].mean().sort_values(ascending=False).head(15).reset_index()
-        genre_pop_fig = px.bar(
-            genre_pop,
-            x='genre',
-            y='popularity',
-            title='Average Popularity by Genre (Top 15)',
-            labels={'genre': 'Genre', 'popularity': 'Avg Popularity'},
-            color='popularity',
-            color_continuous_scale='blues'
-        )
-        genre_pop_fig.update_xaxes(tickangle=-45)
-    else:
-        # Fallback if no genre data
-        genre_fig = go.Figure()
-        genre_fig.update_layout(title='No genre data available')
-        popular_genre_fig = go.Figure()
-        popular_genre_fig.update_layout(title='No genre data available')
-        genre_pop_fig = go.Figure()
-        genre_pop_fig.update_layout(title='No genre data available')
-
-    return html.Div([
-        html.H1("Genre Analysis", className="mb-4"),
-        html.P("Explore genre distribution and popularity across the dataset", className="lead"),
-
-        dbc.Row([
-            dbc.Col([dcc.Graph(figure=genre_fig)], width=12),
-        ], className="mb-4"),
-
-        dbc.Row([
-            dbc.Col([dcc.Graph(figure=popular_genre_fig)], width=6),
-            dbc.Col([dcc.Graph(figure=genre_pop_fig)], width=6),
-        ]),
-    ])
-
 
 def create_top_charts_page():
     """Top charts page with most popular artists and tracks"""
@@ -761,4 +686,4 @@ def create_top_charts_page():
 # ============================================================================
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", debug=True, port=8050)
+    app.run(debug=True, port=8050)

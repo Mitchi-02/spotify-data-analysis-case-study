@@ -18,15 +18,7 @@ python -m venv venv
 source venv/bin/activate
 ```
 
-2. Create a `data` folder and add the required CSV files:
-
-```bash
-mkdir -p data
-```
-
-Then place these files in the `data` folder: - `data/artists.csv` - `data/tracks.csv`
-
-3. Install dependencies:
+2. Install dependencies:
 
 ```bash
 pip install -r requirements.txt
